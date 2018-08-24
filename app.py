@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from functools import wraps
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 
@@ -15,14 +16,16 @@ app.config['MYSQL_DB'] = 'myflaskapp'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init MYSQL
 mysql = MySQL(app)
+migrate = Migrate(app, mysql)
 
 #Articles = Articles()
 
 # Index
+
+
 @app.route('/')
 def index():
     return render_template('home.html')
-
 
 
 # Register Form Class
@@ -51,7 +54,8 @@ def register():
         cur = mysql.connection.cursor()
 
         # Execute query
-        cur.execute("INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)", (name, email, username, password))
+        cur.execute("INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)",
+                    (name, email, username, password))
 
         # Commit to DB
         mysql.connection.commit()
@@ -77,7 +81,8 @@ def login():
         cur = mysql.connection.cursor()
 
         # Get user by username
-        result = cur.execute("SELECT * FROM users WHERE username = %s", [username])
+        result = cur.execute(
+            "SELECT * FROM users WHERE username = %s", [username])
 
         if result > 0:
             # Get stored hash
@@ -104,6 +109,8 @@ def login():
     return render_template('login.html')
 
 # Check if user logged in
+
+
 def is_logged_in(f):
     @wraps(f)
     def wrap(*args, **kwargs):
@@ -115,6 +122,8 @@ def is_logged_in(f):
     return wrap
 
 # Logout
+
+
 @app.route('/logout')
 @is_logged_in
 def logout():
@@ -123,11 +132,13 @@ def logout():
     return redirect(url_for('login'))
 
 # Dashboard
+
+
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
-	return render_template('dashboard.html')
+    return render_template('dashboard.html')
 
 if __name__ == '__main__':
-    app.secret_key='secret123'
+    app.secret_key = 'secret123'
     app.run(debug=True)
