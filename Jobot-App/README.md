@@ -1,6 +1,7 @@
 Skeleton of Flask App:
 
 Jobot-App:
+
 	main.py : contains definition of app
 	
 	constants.py: necessary constants for working of app 
