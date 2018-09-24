@@ -12,6 +12,7 @@ from functools import wraps
 from passlib.hash import sha256_crypt
 from flask_sqlalchemy import SQLAlchemy
 from main import db
+from main import mongo
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -109,7 +110,27 @@ def logout():
     return redirect(url_for('login'))
 
 # Dashboard
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 @is_logged_in
 def dashboard():
+	if request.method == 'POST':
+		adhar = request.form['adhar']
+		name = request.form['name']
+		phone = request.form['phone']
+		street = request.form['street']
+		city = request.form['city']
+		state = request.form['state']
+		gender = request.form['gender']
+		birth = request.form['birthdate']
+		user = mongo.db.users
+		user.insert({'Name' : name, 'Adhar No': adhar, 'Phone':phone, 'BirthDate':birth, 'Address':[street,city,state], 'City':city, 'State':state ,'Gender':gender, 'Country': 'India' })
+		return 'Added user!'
+
 	return render_template('dashboard.html')
+
+#testing
+@app.route('/add')
+def add():
+	user=mongo.db.users
+	user.insert({'name' : 'Shubham'})
+	return 'Added user!!'
